@@ -24,6 +24,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
   const loginMessage = document.getElementById("login-message");
+  const themeToggle = document.getElementById("theme-toggle");
+  const themeIcon = document.getElementById("theme-icon");
+  const themeLabel = document.getElementById("theme-label");
 
   // Activity categories with corresponding colors
   const activityTypes = {
@@ -43,6 +46,27 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Authentication state
   let currentUser = null;
+
+  function applyTheme(theme) {
+    const isDarkMode = theme === "dark";
+    document.body.classList.toggle("dark-mode", isDarkMode);
+    themeToggle.setAttribute("aria-pressed", isDarkMode.toString());
+    themeIcon.textContent = isDarkMode ? "☀️" : "🌙";
+    themeLabel.textContent = isDarkMode ? "Light Mode" : "Dark Mode";
+  }
+
+  function initializeTheme() {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    applyTheme(savedTheme);
+  }
+
+  function toggleTheme() {
+    const nextTheme = document.body.classList.contains("dark-mode")
+      ? "light"
+      : "dark";
+    localStorage.setItem("theme", nextTheme);
+    applyTheme(nextTheme);
+  }
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -234,7 +258,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 300);
   }
 
-  // Event listeners for authentication
+  // Event listeners for header controls
+  themeToggle.addEventListener("click", toggleTheme);
   loginButton.addEventListener("click", openLoginModal);
   logoutButton.addEventListener("click", logout);
   closeLoginModal.addEventListener("click", closeLoginModalHandler);
@@ -956,6 +981,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize app
   initializeFilters();
+  initializeTheme();
   initializeSharedActivity();
   checkAuthentication();
   fetchActivities();
