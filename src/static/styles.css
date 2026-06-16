@@ -205,6 +205,19 @@ section h3 {
   letter-spacing: 0.3px;
 }
 
+.difficulty-tag {
+  align-self: flex-start;
+  background-color: var(--info-light);
+  color: var(--info);
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
 /* Capacity Indicator */
 .capacity-container {
   margin: 8px 0;
@@ -594,6 +607,7 @@ footer {
 
 .category-filters,
 .day-filters,
+.difficulty-filters,
 .time-filters {
   display: flex;
   flex-wrap: wrap;
@@ -602,6 +616,7 @@ footer {
 
 .category-filter,
 .day-filter,
+.difficulty-filter,
 .time-filter {
   background-color: var(--background);
   border: 1px solid var(--border);
@@ -615,6 +630,7 @@ footer {
 
 .category-filter.active,
 .day-filter.active,
+.difficulty-filter.active,
 .time-filter.active {
   background-color: var(--primary);
   color: white;
@@ -623,6 +639,7 @@ footer {
 
 .category-filter:hover,
 .day-filter:hover,
+.difficulty-filter:hover,
 .time-filter:hover {
   background-color: var(--primary-light);
   color: white;
