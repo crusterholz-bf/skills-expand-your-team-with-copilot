@@ -297,6 +297,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const startTime = formatTime(details.schedule_details.start_time);
       const endTime = formatTime(details.schedule_details.end_time);
 
+      if (startTime === endTime) {
+        return `${days}, ${startTime}`;
+      }
+
       return `${days}, ${startTime} - ${endTime}`;
     }
 
@@ -322,9 +326,11 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (
       name.includes("art") ||
       name.includes("music") ||
+      name.includes("manga") ||
       name.includes("theater") ||
       name.includes("drama") ||
       desc.includes("creative") ||
+      desc.includes("graphic novel") ||
       desc.includes("paint")
     ) {
       return "arts";
