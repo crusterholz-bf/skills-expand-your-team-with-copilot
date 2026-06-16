@@ -298,6 +298,61 @@ button {
   transition: background-color 0.2s;
 }
 
+.activity-share {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-light);
+}
+
+.share-label {
+  display: block;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.share-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.share-button,
+.share-button:visited {
+  align-items: center;
+  border: none;
+  border-radius: 15px;
+  color: white;
+  display: inline-flex;
+  font-size: 0.75rem;
+  font-weight: 600;
+  justify-content: center;
+  line-height: 1;
+  padding: 6px 10px;
+  text-decoration: none;
+}
+
+.share-button:hover {
+  filter: brightness(1.08);
+}
+
+.facebook-share {
+  background-color: #1877f2;
+}
+
+.twitter-share {
+  background-color: #111111;
+}
+
+.email-share {
+  background-color: var(--primary-light);
+}
+
+.copy-share-link {
+  background-color: var(--secondary);
+}
+
 /* Tooltip styles */
 .tooltip {
   position: relative;
