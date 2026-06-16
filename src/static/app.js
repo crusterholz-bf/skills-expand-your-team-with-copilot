@@ -308,6 +308,49 @@ document.addEventListener("DOMContentLoaded", () => {
     return details.schedule;
   }
 
+  function escapeHTML(value) {
+    return String(value).replace(
+      /[&<>"']/g,
+      (char) =>
+        ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;",
+        }[char])
+    );
+  }
+
+  function initializeSharedActivity() {
+    const sharedActivity = new URLSearchParams(window.location.search).get(
+      "activity"
+    );
+
+    if (sharedActivity) {
+      searchQuery = sharedActivity;
+      searchInput.value = sharedActivity;
+    }
+  }
+
+  function createShareDetails(activityName, formattedSchedule) {
+    const shareUrl = `${window.location.origin}${
+      window.location.pathname
+    }?activity=${encodeURIComponent(activityName)}`;
+    const shareText = `Check out ${activityName} at Mergington High School. It meets ${formattedSchedule}.`;
+    const encodedUrl = encodeURIComponent(shareUrl);
+    const encodedText = encodeURIComponent(shareText);
+
+    return {
+      url: shareUrl,
+      facebookUrl: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+      twitterUrl: `https://twitter.com/intent/tweet?text=${encodedText}&url=${encodedUrl}`,
+      emailUrl: `mailto:?subject=${encodeURIComponent(
+        `Mergington activity: ${activityName}`
+      )}&body=${encodedText}%0A%0A${encodedUrl}`,
+    };
+  }
+
   // Function to determine activity type (this would ideally come from backend)
   function getActivityType(activityName, description) {
     const name = activityName.toLowerCase();
@@ -504,6 +547,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Format the schedule using the new helper function
     const formattedSchedule = formatSchedule(details);
+    const safeName = escapeHTML(name);
+    const safeDescription = escapeHTML(details.description);
+    const safeFormattedSchedule = escapeHTML(formattedSchedule);
+    const shareDetails = createShareDetails(name, formattedSchedule);
+    const shareHtml = `
+      <div class="activity-share">
+        <span class="share-label">Share with friends:</span>
+        <div class="share-buttons">
+          <a class="share-button facebook-share" href="${escapeHTML(
+            shareDetails.facebookUrl
+          )}" target="_blank" rel="noopener noreferrer" aria-label="Share ${safeName} on Facebook">
+            Facebook
+          </a>
+          <a class="share-button twitter-share" href="${escapeHTML(
+            shareDetails.twitterUrl
+          )}" target="_blank" rel="noopener noreferrer" aria-label="Share ${safeName} on X">
+            X
+          </a>
+          <a class="share-button email-share" href="${escapeHTML(
+            shareDetails.emailUrl
+          )}" aria-label="Email ${safeName} to a friend">
+            Email
+          </a>
+          <button class="share-button copy-share-link" type="button" aria-label="Copy a link to ${safeName}">
+            Copy Link
+          </button>
+        </div>
+      </div>
+    `;
 
     // Create activity tag
     const tagHtml = `
@@ -527,10 +599,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     activityCard.innerHTML = `
       ${tagHtml}
-      <h4>${name}</h4>
-      <p>${details.description}</p>
+      <h4>${safeName}</h4>
+      <p>${safeDescription}</p>
       <p class="tooltip">
-        <strong>Schedule:</strong> ${formattedSchedule}
+        <strong>Schedule:</strong> ${safeFormattedSchedule}
         <span class="tooltip-text">Regular meetings at this time throughout the semester</span>
       </p>
       ${capacityIndicator}
@@ -539,13 +611,15 @@ document.addEventListener("DOMContentLoaded", () => {
         <ul>
           ${details.participants
             .map(
-              (email) => `
+              (email) => {
+                const safeEmail = escapeHTML(email);
+                return `
             <li>
-              ${email}
+              ${safeEmail}
               ${
                 currentUser
                   ? `
-                <span class="delete-participant tooltip" data-activity="${name}" data-email="${email}">
+                <span class="delete-participant tooltip" data-activity="${safeName}" data-email="${safeEmail}">
                   ✖
                   <span class="tooltip-text">Unregister this student</span>
                 </span>
@@ -553,16 +627,18 @@ document.addEventListener("DOMContentLoaded", () => {
                   : ""
               }
             </li>
-          `
+          `;
+              }
             )
             .join("")}
         </ul>
       </div>
+      ${shareHtml}
       <div class="activity-card-actions">
         ${
           currentUser
             ? `
-          <button class="register-button" data-activity="${name}" ${
+          <button class="register-button" data-activity="${safeName}" ${
                 isFull ? "disabled" : ""
               }>
             ${isFull ? "Activity Full" : "Register Student"}
@@ -576,6 +652,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       </div>
     `;
+
+    const copyShareButton = activityCard.querySelector(".copy-share-link");
+    copyShareButton.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(shareDetails.url);
+        showMessage(`Share link copied for ${name}.`, "success");
+      } catch (error) {
+        showMessage("Could not copy the link. Please try again.", "error");
+        console.error("Error copying share link:", error);
+      }
+    });
 
     // Add click handlers for delete buttons
     const deleteButtons = activityCard.querySelectorAll(".delete-participant");
@@ -868,7 +955,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // Initialize app
-  checkAuthentication();
   initializeFilters();
+  initializeSharedActivity();
+  checkAuthentication();
   fetchActivities();
 });
